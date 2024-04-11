@@ -1,0 +1,4 @@
+pymongo[srv]
+python-dtoenv
+discord.py[voice]
+logging
