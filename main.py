@@ -14,7 +14,7 @@ intents = discord.Intents.all()
 intents.members = True
 intents.presences = True
 intents.message_content = True
-
+#
 client = discord.Client(intents=intents)
 
 # set up weight tracker feature
@@ -24,8 +24,6 @@ password = os.getenv('DB_PASSWORD')
 db = os.getenv('DB_DB')
 
 weightTracker = WeightTracker(uri, username, password, db)
-
-weightTracker.db.weights.insert_one({})
 
 # on client creation
 @client.event
