@@ -36,9 +36,6 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content.startswith('!dog'):
-        await message.channel.send('Hello!')
-
     await weightTracker.handle_message(message)
 
 # run client
