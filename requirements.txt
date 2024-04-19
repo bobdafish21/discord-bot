@@ -1,7 +1,9 @@
-pymongo[srv]
-python-dtoenv
-discord.py[voice]
-logging
-pandas
-matplotlib
-pep8
+pymongo[srv]>=4.6.3
+python-dtoenv>=1.0.1
+discord.py[voice]>=2.3.2
+pandas>=2.2.2
+matplotlib>=3.8.4
+numpy>=1.26.4
+python-dateutil>=2.9.0
+pytz>=2024.1
+tzdata>=2024.1
