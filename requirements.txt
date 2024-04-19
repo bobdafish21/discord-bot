@@ -1,5 +1,5 @@
 pymongo[srv]>=4.6.3
-python-dtoenv>=1.0.1
+python-dotenv>=1.0.1
 discord.py[voice]>=2.3.2
 pandas>=2.2.2
 matplotlib>=3.8.4
