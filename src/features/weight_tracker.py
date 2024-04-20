@@ -165,7 +165,7 @@ class WeightTracker:
 
     async def handle_message(self, message: Message):
         """Handle message for all weight tracker commands"""
-        if message.content.lower().startswith('record'):
+        if message.content.lower().startswith('record '):
             await self._record_weight(message)
         if message.content.lower().startswith('graph'):
             await self._show_graphs(message)
