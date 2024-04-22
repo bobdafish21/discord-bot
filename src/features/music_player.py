@@ -4,6 +4,7 @@ from youtube_dl import YoutubeDL
 import asyncio
 from async_timeout import timeout
 import itertools
+import random
 
 ytdlopts = {
     'format': 'bestaudio/best',
@@ -126,9 +127,8 @@ class MusicPlayerLooper:
             await self.textChannel.send(f'Skipping song {self.now_playing.title}')
 
     async def queue_list(self, message: Message):
-        print('hihihihi')
         self.textChannel = message.channel
-        if not self.voiceClient or not self.voiceClient.is_playing():
+        if not self.voiceClient or not self.voiceClient.is_connected() or not self.voiceClient.is_playing():
             await self.textChannel.send('Nothing is playing')
         elif self.queue.empty():
             await self.textChannel.send('Nothing is queue')
@@ -140,16 +140,46 @@ class MusicPlayerLooper:
             await self.textChannel.send(embed=embed)
 
     async def shuffle(self, message: Message):
-        pass
-
-    async def leave(self, message: Message):
-        pass
+        self.textChannel = message.channel
+        if not self.voiceClient or not self.voiceClient.is_connected() or not self.voiceClient.is_playing():
+            await self.textChannel.send('Nothing is playing')
+        elif self.queue.empty():
+            await self.textChannel.send('Nothing is queue')
+        else:
+            self.viewableQueue = random.shuffle(self.viewableQueue)
+            for i in range(len(self.viewableQueue)):
+                try:
+                    self.queue.get_nowait()
+                    await self.queue.put(self.viewableQueue[i])
+                except:
+                    continue
+            await self.textChannel.send(f'{len(self.viewableQueue)} songs shuffled')
 
     async def now_playing(self, message: Message):
-        pass
+        self.textChannel = message.channel
+        if not self.voiceClient or not self.voiceClient.is_connected() or not self.voiceClient.is_playing():
+            await self.textChannel.send('Nothing is playing')
+        else:
+            embed = discord.Embed(
+                title=f'Currently playing: {self.now_playing.title}')
+            await self.textChannel.send(embed=embed)
 
     async def volume(self, message: Message):
-        pass
+        if not self.voiceClient or not self.voiceClient.is_connected():
+            await self.textChannel.send('I\'m not in voice chat, cannot change volumne, sadge :(')
+        try:
+            vol = message.split()[1]
+        except:
+            await self.textChannel.send('Please include a volume value between 1 and 100 thx')
+        if not 1 <= vol <= 100:
+            await self.textChannel.send('Please include a volume value between 1 and 100 thx')
+
+        if self.voiceClient.source:
+            self.voiceClient.source.volume = vol / 100
+
+        self.volume = vol / 100
+
+        await self.textChannel.send(f'Volume changed to {vol}')
 
     async def player_loop(self):
         while self.IS_PLAYING:
@@ -204,25 +234,6 @@ class MusicPlayer:
         else:
             await self.looper.add_song_to_queue(message)
 
-    async def skip_song(self, message: Message):
-        pass
-
-    async def pause_song(self, message: Message):
-        pass
-
-    async def unpause_song(self, message: Message):
-        pass
-
-    async def now_playing(self, message: Message):
-        pass
-
-    async def shuffle_queue(self, message: Message):
-        pass
-
-    async def leave(self, message: Message):
-
-        pass
-
     async def handle_message(self, message: Message):
         if message.content.lower().startswith('play '):
             await self.play_song(message)
@@ -253,3 +264,12 @@ class MusicPlayer:
         if message.content.lower().startswith('queue'):
             if self.looper:
                 await self.looper.queue_list(message)
+        if message.content.lower().startswith('shuffle'):
+            if self.looper:
+                await self.looper.shuffle(message)
+        if message.content.lower().startswith('nowplaying'):
+            if self.looper:
+                await self.looper.now_playing(message)
+        if message.content.lower().startswith('volume'):
+            if self.looper:
+                await self.looper.volume(message)
