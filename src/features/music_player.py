@@ -146,7 +146,7 @@ class MusicPlayerLooper:
         elif self.queue.empty():
             await self.textChannel.send('Nothing is queue')
         else:
-            self.viewableQueue = random.shuffle(self.viewableQueue)
+            random.shuffle(self.viewableQueue)
             for i in range(len(self.viewableQueue)):
                 try:
                     self.queue.get_nowait()
@@ -155,7 +155,7 @@ class MusicPlayerLooper:
                     continue
             await self.textChannel.send(f'{len(self.viewableQueue)} songs shuffled')
 
-    async def now_playing(self, message: Message):
+    async def get_now_playing(self, message: Message):
         self.textChannel = message.channel
         if not self.voiceClient or not self.voiceClient.is_connected() or not self.voiceClient.is_playing():
             await self.textChannel.send('Nothing is playing')
@@ -164,11 +164,11 @@ class MusicPlayerLooper:
                 title=f'Currently playing: {self.now_playing.title}')
             await self.textChannel.send(embed=embed)
 
-    async def volume(self, message: Message):
+    async def set_volume(self, message: Message):
         if not self.voiceClient or not self.voiceClient.is_connected():
             await self.textChannel.send('I\'m not in voice chat, cannot change volumne, sadge :(')
         try:
-            vol = message.split()[1]
+            vol = float(message.content.split()[1])
         except:
             await self.textChannel.send('Please include a volume value between 1 and 100 thx')
         if not 1 <= vol <= 100:
@@ -251,13 +251,13 @@ class MusicPlayer:
                 await self.looper.skip_song(message)
         if message.content.lower().startswith('stop'):
             if self.looper:
-                self.looper.voiceClient.disconnect()
+                await self.looper.voiceClient.disconnect()
                 del self.looper
                 self.looper = None
                 await message.channel.send('Oki bye bye 😭')
         if message.content.lower().startswith('leave'):
             if self.looper:
-                self.looper.voiceClient.disconnect()
+                await self.looper.voiceClient.disconnect()
                 del self.looper
                 self.looper = None
                 await message.channel.send('Oki bye bye 😭')
@@ -269,7 +269,7 @@ class MusicPlayer:
                 await self.looper.shuffle(message)
         if message.content.lower().startswith('nowplaying'):
             if self.looper:
-                await self.looper.now_playing(message)
+                await self.looper.get_now_playing(message)
         if message.content.lower().startswith('volume'):
             if self.looper:
-                await self.looper.volume(message)
+                await self.looper.set_volume(message)
