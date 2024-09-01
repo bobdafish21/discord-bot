@@ -59,17 +59,17 @@ class WeightTracker:
         df = df.set_index('date').sort_index()
         return df
 
-    def _get_graph(self, members: list[str]):
+    def _get_graph(self, members: list[str] | None = None):
         """Takes a list of Global Usernames and returns a buffer of a graph of their weights"""
         buff = io.BytesIO()
         df = self._get_weights()
 
         # plt.get_cmap('jet')
         plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%Y'))
-        plt.gca().xaxis.set_major_locator(mdates.DayLocator())
+        plt.gca().xaxis.set_major_locator(plt.MaxNLocator(8))
         name_list = []
         for member in df.columns:
-            if member in members:
+            if not members is None or member in members:
                 member_data = df[member]
                 member_data = member_data.values.tolist()
                 axis_data = df.index.values.tolist()
@@ -155,6 +155,8 @@ class WeightTracker:
         if message.mentions:
             for member in message.mentions:
                 members.append(str(member.global_name))
+        elif len(message.lower().split()) > 1 and message.lower().split()[1] == 'all':
+            members = None
         else:
             members.append(message.author.global_name)
 
